@@ -1,84 +1,68 @@
-import { useState, useEffect } from "react";
-import { fetchItems, addItem, updateItem, deleteItem } from "../services/api";
+// src/hooks/useItems.js
 
-export const useItems = (userId) => {
+import { useEffect, useState } from "react";
+import { getItems, addItem, updateItem, deleteItem } from "../services/api";
+import { useUser } from "@clerk/clerk-react";
+
+export default function useItems() {
+  const { user } = useUser();
+  const userId = user?.id; // IMPORTANT FIX
+
   const [items, setItems] = useState([]);
-  const [editingItem, setEditingItem] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) {
-      setItems([]);
-      return;
+    if (!userId) return;
+
+    async function fetchItems() {
+      try {
+        const data = await getItems(userId);
+        setItems(data);
+      } catch (err) {
+        console.error("Error loading items:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-    loadItems();
+
+    fetchItems();
   }, [userId]);
 
-  const loadItems = async () => {
-    try {
-      const data = await fetchItems(userId);
-      setItems(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  async function createItem(name, quantity = 1) {
+    if (!userId) return;
 
-  const handleAddItem = async (newItem) => {
-    try {
-      const savedItem = await addItem(newItem, userId);
-      setItems((prev) => [...prev, savedItem]); // FIXED
-    } catch (error) {
-      console.error("Error adding item:", error);
-    }
-  };
+    const newItem = await addItem(name, quantity, userId);
+    setItems((prev) => [...prev, newItem]);
+  }
 
-  const handleUpdateItem = async (updatedItem) => {
-    try {
-      await updateItem(updatedItem.id, updatedItem, userId);
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === updatedItem.id ? { ...item, ...updatedItem } : item
-        )
-      );
-      setEditingItem(null);
-    } catch (error) {
-      console.error("Error updating item:", error);
-    }
-  };
+  async function togglePurchased(item) {
+    await updateItem(
+      item.id,
+      item.name,
+      item.quantity,
+      item.is_purchased ? 0 : 1,
+      userId // IMPORTANT FIX
+    );
 
-  const handleDeleteItem = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
-    try {
-      await deleteItem(id, userId);
-      setItems((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    }
-  };
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === item.id
+          ? { ...i, is_purchased: item.is_purchased ? 0 : 1 }
+          : i
+      )
+    );
+  }
 
-  const handleTogglePurchase = async (id) => {
-    const item = items.find((i) => i.id === id);
-    if (!item) return;
-
-    const updated = {
-      ...item,
-      is_purchased: item.is_purchased === 1 ? 0 : 1,
-    };
-
-    try {
-      await updateItem(id, updated, userId);
-      setItems((prev) => prev.map((i) => (i.id === id ? updated : i)));
-    } catch (error) {
-      console.error("Error toggling:", error);
-    }
-  };
+  async function removeItem(id) {
+    await deleteItem(id, userId); // IMPORTANT FIX
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  }
 
   return {
     items,
-    editingItem,
-    setEditingItem,
-    handleAddItem,
-    handleUpdateItem,
-    handleDeleteItem,
-    handleTogglePurchase,
+    loading,
+    createItem,
+    togglePurchased,
+    removeItem,
   };
-};
+}

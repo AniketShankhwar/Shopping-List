@@ -1,44 +1,46 @@
-const BASE = import.meta.env.VITE_API_BASE_URL
-  ? `${import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')}/api/items`
-  : "http://localhost:5000/api/items";
+// src/services/api.js
 
-export const fetchItems = async (userId) => {
-  const res = await fetch(`${BASE}?userId=${userId}`);
-  if (!res.ok) throw new Error(await res.text());
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+export async function getItems(userId) {
+  const res = await fetch(`${BASE_URL}/api/items?userId=${userId}`);
+  if (!res.ok) throw new Error("Failed to fetch items");
   return res.json();
-};
+}
 
-export const addItem = async (item, userId) => {
-  const body = { ...item, user_id: userId };
-
-  const res = await fetch(BASE, {
+export async function addItem(name, quantity, userId) {
+  const res = await fetch(`${BASE_URL}/api/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      name,
+      quantity,
+      user_id: userId, // IMPORTANT FIX
+    }),
   });
-
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) throw new Error("Failed to add item");
   return res.json();
-};
+}
 
-export const updateItem = async (id, item, userId) => {
-  const body = { ...item, user_id: userId };
-
-  const res = await fetch(`${BASE}/${id}`, {
+export async function updateItem(id, name, quantity, is_purchased, userId) {
+  const res = await fetch(`${BASE_URL}/api/items/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      name,
+      quantity,
+      is_purchased,
+      user_id: userId, // IMPORTANT FIX
+    }),
   });
-
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) throw new Error("Failed to update item");
   return res.json();
-};
+}
 
-export const deleteItem = async (id, userId) => {
-  const res = await fetch(`${BASE}/${id}?userId=${userId}`, {
+export async function deleteItem(id, userId) {
+  const res = await fetch(`${BASE_URL}/api/items/${id}?userId=${userId}`, {
     method: "DELETE",
   });
-
-  if (!res.ok) throw new Error(await res.text());
-  return res;
-};
+  if (!res.ok) throw new Error("Failed to delete item");
+  return res.json();
+}
