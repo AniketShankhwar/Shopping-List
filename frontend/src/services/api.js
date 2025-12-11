@@ -1,3 +1,5 @@
+// frontend/src/services/api.js
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export async function getItems(userId) {
@@ -26,10 +28,10 @@ export async function updateItem(id, data) {
   return res.json();
 }
 
-export async function deleteItem(id, userId) {
-  const res = await fetch(`${BASE_URL}/api/items/${id}?userId=${userId}`, {
+export async function deleteItem(id) {
+  const res = await fetch(`${BASE_URL}/api/items/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete item");
-  return res.json();
+  return res.status === 204 ? {} : res.json();
 }
