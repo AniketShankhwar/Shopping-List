@@ -1,6 +1,6 @@
 // frontend/src/hooks/useItems.js
 import { useState, useEffect } from 'react';
-import { fetchItems, addItem, updateItem, deleteItem } from '../services/api';
+import { fetchItems, addItem, updateItem, deleteItem } from '../services/api'; // <- fixed path
 
 export const useItems = (userId) => {
   const [items, setItems] = useState([]);
@@ -27,11 +27,10 @@ export const useItems = (userId) => {
   const handleAddItem = async (newItem) => {
     try {
       const savedItem = await addItem(newItem, userId);
-      // <-- FIXED: use spread operator correctly
-      setItems(prev => [...prev, savedItem]);
+      // append to local state correctly
+      setItems(prev => [...prev, savedItem]); // <- fixed spread operator
     } catch (error) {
       console.error('Error adding item:', error);
-      // For debugging: you can also alert(error.message)
     }
   };
 

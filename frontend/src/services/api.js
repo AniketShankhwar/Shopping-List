@@ -12,7 +12,7 @@ export const fetchItems = async (userId) => {
 
 export const addItem = async (item, userId) => {
   if (!userId) throw new Error('addItem requires a userId');
-  const body = { ...item, user_id: userId };
+  const body = { ...item, user_id: userId }; // <- spread correctly
   const res = await fetch(BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -24,7 +24,7 @@ export const addItem = async (item, userId) => {
 
 export const updateItem = async (id, item, userId) => {
   if (!userId) throw new Error('updateItem requires a userId');
-  const body = { ...item, user_id: userId };
+  const body = { ...item, user_id: userId }; // <- spread correctly
   const res = await fetch(`${BASE}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

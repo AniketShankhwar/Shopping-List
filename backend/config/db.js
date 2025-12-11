@@ -2,19 +2,19 @@
 require("dotenv").config();
 const mysql = require("mysql2");
 
-const urlDB = process.env.MYSQL_URL;
+const urlDB = process.env.MYSQL_URL; // Railway URL
 
-// create connection
-const connection = mysql.createConnection(urlDB);
+// Use a pool for better concurrency and automatic reconnection
+const pool = mysql.createPool(urlDB);
 
-// simple promise query helper
+// Promise wrapper
 function query(sql, params = []) {
   return new Promise((resolve, reject) => {
-    connection.query(sql, params, (err, results) => {
+    pool.query(sql, params, (err, results) => {
       if (err) return reject(err);
       resolve(results);
     });
   });
 }
 
-module.exports = { connection, query };
+module.exports = { pool, query };
