@@ -1,8 +1,8 @@
+// frontend/src/components/ItemList.jsx
 import React from 'react';
 
 function ItemList({ items, onEdit, onDelete, onTogglePurchase }) {
-    // Show a friendly message when the list is empty
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
         return (
             <p className="text-center text-gray-500 p-4 border border-dashed border-gray-300 rounded-lg">
                 Your shopping list is empty. Add an item to get started!
@@ -11,10 +11,8 @@ function ItemList({ items, onEdit, onDelete, onTogglePurchase }) {
     }
 
     return (
-        // Modern list with space between items
         <ul className="space-y-3">
             {items.map(item => (
-                // Use is_purchased status (0 or 1 from DB) to apply conditional styling
                 <li
                     key={item.id}
                     className={`
@@ -23,7 +21,6 @@ function ItemList({ items, onEdit, onDelete, onTogglePurchase }) {
                         hover:shadow-lg hover:border-indigo-300
                     `}
                 >
-                    {/* Item Name and Quantity - Clickable to toggle purchase status */}
                     <span 
                         onClick={() => onTogglePurchase(item.id)} 
                         className={`
@@ -37,18 +34,15 @@ function ItemList({ items, onEdit, onDelete, onTogglePurchase }) {
                         </span>
                     </span>
 
-                    {/* Action Buttons */}
                     <div className="flex gap-2">
                         <button 
                             onClick={() => onEdit(item)}
-                            // Stylish Edit button
                             className="text-sm font-medium py-1 px-3 rounded-md bg-yellow-400 text-gray-800 hover:bg-yellow-500 transition duration-150 shadow-sm"
                         >
                             Edit
                         </button>
                         <button 
                             onClick={() => onDelete(item.id)}
-                            // Stylish Delete button
                             className="text-sm font-medium py-1 px-3 rounded-md bg-red-500 text-white hover:bg-red-600 transition duration-150 shadow-sm"
                         >
                             Delete
