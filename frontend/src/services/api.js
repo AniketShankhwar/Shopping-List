@@ -1,5 +1,3 @@
-// src/services/api.js
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export async function getItems(userId) {
@@ -8,30 +6,21 @@ export async function getItems(userId) {
   return res.json();
 }
 
-export async function addItem(name, quantity, userId) {
+export async function addItem(data) {
   const res = await fetch(`${BASE_URL}/api/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      quantity,
-      user_id: userId, // IMPORTANT FIX
-    }),
+    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to add item");
   return res.json();
 }
 
-export async function updateItem(id, name, quantity, is_purchased, userId) {
+export async function updateItem(id, data) {
   const res = await fetch(`${BASE_URL}/api/items/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      quantity,
-      is_purchased,
-      user_id: userId, // IMPORTANT FIX
-    }),
+    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to update item");
   return res.json();
