@@ -1,6 +1,5 @@
-// frontend/src/hooks/useItems.js
-import { useState, useEffect } from 'react';
-import { fetchItems, addItem, updateItem, deleteItem } from '../services/api'; // <- fixed path
+import { useState, useEffect } from "react";
+import { fetchItems, addItem, updateItem, deleteItem } from "../services/api";
 
 export const useItems = (userId) => {
   const [items, setItems] = useState([]);
@@ -12,59 +11,64 @@ export const useItems = (userId) => {
       return;
     }
     loadItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadItems = async () => {
     try {
       const data = await fetchItems(userId);
       setItems(data);
-    } catch (error) {
-      console.error('Error fetching items:', error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleAddItem = async (newItem) => {
     try {
       const savedItem = await addItem(newItem, userId);
-      // append to local state correctly
-      setItems(prev => [...prev, savedItem]); // <- fixed spread operator
+      setItems((prev) => [...prev, savedItem]); // FIXED
     } catch (error) {
-      console.error('Error adding item:', error);
+      console.error("Error adding item:", error);
     }
   };
 
   const handleUpdateItem = async (updatedItem) => {
     try {
       await updateItem(updatedItem.id, updatedItem, userId);
-      setItems(prev => prev.map(item => item.id === updatedItem.id ? { ...item, ...updatedItem } : item));
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === updatedItem.id ? { ...item, ...updatedItem } : item
+        )
+      );
       setEditingItem(null);
     } catch (error) {
-      console.error('Error updating item:', error);
+      console.error("Error updating item:", error);
     }
   };
 
   const handleDeleteItem = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    if (!window.confirm("Delete this item?")) return;
     try {
       await deleteItem(id, userId);
-      setItems(prev => prev.filter(item => item.id !== id));
+      setItems((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
-      console.error('Error deleting item:', error);
+      console.error("Error deleting item:", error);
     }
   };
 
   const handleTogglePurchase = async (id) => {
-    const itemToToggle = items.find(item => item.id === id);
-    if (!itemToToggle) return;
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
 
-    const updatedItem = { ...itemToToggle, is_purchased: itemToToggle.is_purchased === 1 ? 0 : 1 };
+    const updated = {
+      ...item,
+      is_purchased: item.is_purchased === 1 ? 0 : 1,
+    };
 
     try {
-      await updateItem(id, updatedItem, userId);
-      setItems(prev => prev.map(item => item.id === id ? updatedItem : item));
+      await updateItem(id, updated, userId);
+      setItems((prev) => prev.map((i) => (i.id === id ? updated : i)));
     } catch (error) {
-      console.error('Error toggling item:', error);
+      console.error("Error toggling:", error);
     }
   };
 
@@ -75,6 +79,6 @@ export const useItems = (userId) => {
     handleAddItem,
     handleUpdateItem,
     handleDeleteItem,
-    handleTogglePurchase
+    handleTogglePurchase,
   };
 };
